@@ -23,8 +23,9 @@ namespace SaleStream.Controllers
             _configuration = configuration;
         }
 
+    
+        /// Registers a new user with inactive status by default.
 
-        /// Registers a new user
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register(User user)
@@ -32,7 +33,7 @@ namespace SaleStream.Controllers
             try
             {
                 await _authService.RegisterUser(user.Username, user.Email, user.PasswordHash);
-                return Ok("User registered successfully");
+                return Ok("User registered successfully. Your account is pending activation.");
             }
             catch (Exception ex)
             {
@@ -40,37 +41,46 @@ namespace SaleStream.Controllers
             }
         }
 
+    
+        /// Logs in a user using email and password via JSON.
 
-        /// Authenticates and logs in the user
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login(string email, string password)
+        public async Task<IActionResult> Login([FromBody] LoginData loginData)
         {
+            // Validate inputs
+            if (string.IsNullOrEmpty(loginData.Email) || string.IsNullOrEmpty(loginData.Password))
+            {
+                return BadRequest("Email and password are required.");
+            }
+
             // Check predefined users from appsettings.json
             var predefinedUsersSection = _configuration.GetSection("PredefinedUsers");
             User predefinedUser = null;
 
-            if (email == predefinedUsersSection.GetSection("Administrator:Email").Value &&
-                password == predefinedUsersSection.GetSection("Administrator:Password").Value)
+            // Check if the login matches predefined users (Administrator/CSR)
+            if (loginData.Email == predefinedUsersSection.GetSection("Administrator:Email").Value &&
+                loginData.Password == predefinedUsersSection.GetSection("Administrator:Password").Value)
             {
                 predefinedUser = new User
                 {
                     Id = predefinedUsersSection.GetSection("Administrator:Id").Value,
-                    Email = email,
+                    Email = loginData.Email,
                     Role = predefinedUsersSection.GetSection("Administrator:Role").Value
                 };
             }
-            else if (email == predefinedUsersSection.GetSection("CSR:Email").Value &&
-                     password == predefinedUsersSection.GetSection("CSR:Password").Value)
+            else if (loginData.Email == predefinedUsersSection.GetSection("CSR:Email").Value &&
+                     loginData.Password == predefinedUsersSection.GetSection("CSR:Password").Value)
             {
                 predefinedUser = new User
                 {
                     Id = predefinedUsersSection.GetSection("CSR:Id").Value,
-                    Email = email,
+                    Email = loginData.Email,
                     Role = predefinedUsersSection.GetSection("CSR:Role").Value
                 };
             }
 
+            // If a predefined user is found, generate and return a token
             if (predefinedUser != null)
             {
                 var token = _jwtService.GenerateToken(predefinedUser);
@@ -83,9 +93,13 @@ namespace SaleStream.Controllers
                 });
             }
 
-            // Regular user authentication
-            var user = await _authService.AuthenticateUser(email, password);
-            if (user == null) return Unauthorized();
+            // Authenticate regular users
+            var user = await _authService.AuthenticateUser(loginData.Email, loginData.Password);
+            if (user == null)
+                return Unauthorized("Invalid email or password.");
+
+            if (!user.IsActive)
+                return BadRequest("Your account is still pending activation.");
 
             var tokenRegular = _jwtService.GenerateToken(user);
             return Ok(new
@@ -96,5 +110,13 @@ namespace SaleStream.Controllers
                 role = user.Role
             });
         }
+    }
+
+
+    /// LoginData class to capture email and password from JSON body.
+    public class LoginData
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

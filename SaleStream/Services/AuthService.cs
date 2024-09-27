@@ -16,7 +16,8 @@ namespace SaleStream.Services
         }
 
     
-        /// Registers a new user with hashed password
+        /// Registers a new user with hashed password and inactive status by default.
+
         public async Task RegisterUser(string username, string email, string password)
         {
             var existingUser = await _userRepository.GetUserByEmail(email);
@@ -29,14 +30,16 @@ namespace SaleStream.Services
                 Username = username,
                 Email = email,
                 PasswordHash = passwordHash,
-                Role = "User"  // Default role
+                Role = "User",  // Default role
+                IsActive = false  // Newly registered users are inactive by default
             };
 
             await _userRepository.CreateUser(user);
         }
 
     
-        /// Authenticates a user based on email and password
+        /// Authenticates a user based on email and password.
+
         public async Task<User> AuthenticateUser(string email, string password)
         {
             var user = await _userRepository.GetUserByEmail(email);

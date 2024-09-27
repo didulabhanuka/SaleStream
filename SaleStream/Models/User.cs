@@ -7,6 +7,6 @@ namespace SaleStream.Models
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string Role { get; set; } = "User";  // Role is always "User" by default
-        public bool IsActive { get; set; } = true;  // New field to manage deactivation
+        public bool IsActive { get; set; } = false;  // New field to manage deactivation
     }
 }

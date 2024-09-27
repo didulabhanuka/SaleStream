@@ -15,6 +15,10 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JwtService>();
 
+// Register CSR-related services and repositories
+builder.Services.AddScoped<CSRRepository>();
+builder.Services.AddScoped<CSRService>();
+
 // Configure JWT and role-based policies
 builder.Services.ConfigureJwtAndRoles(builder.Configuration);
 
