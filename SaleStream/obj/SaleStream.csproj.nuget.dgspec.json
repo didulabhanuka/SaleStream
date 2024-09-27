@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\bhanu\\Desktop\\ON-GOING\\SaleStream\\SaleStream\\SaleStream.csproj": {}
+    "C:\\Users\\bhanu\\Desktop\\ON-GOING\\SaleStream\\salestream\\SaleStream.csproj": {}
   },
   "projects": {
-    "C:\\Users\\bhanu\\Desktop\\ON-GOING\\SaleStream\\SaleStream\\SaleStream.csproj": {
+    "C:\\Users\\bhanu\\Desktop\\ON-GOING\\SaleStream\\salestream\\SaleStream.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\bhanu\\Desktop\\ON-GOING\\SaleStream\\SaleStream\\SaleStream.csproj",
+        "projectUniqueName": "C:\\Users\\bhanu\\Desktop\\ON-GOING\\SaleStream\\salestream\\SaleStream.csproj",
         "projectName": "SaleStream",
-        "projectPath": "C:\\Users\\bhanu\\Desktop\\ON-GOING\\SaleStream\\SaleStream\\SaleStream.csproj",
+        "projectPath": "C:\\Users\\bhanu\\Desktop\\ON-GOING\\SaleStream\\salestream\\SaleStream.csproj",
         "packagesPath": "C:\\Users\\bhanu\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\bhanu\\Desktop\\ON-GOING\\SaleStream\\SaleStream\\obj\\",
+        "outputPath": "C:\\Users\\bhanu\\Desktop\\ON-GOING\\SaleStream\\salestream\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -49,9 +49,21 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.8, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[2.29.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
