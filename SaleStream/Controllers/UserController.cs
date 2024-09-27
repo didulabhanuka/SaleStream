@@ -58,5 +58,15 @@ namespace SaleStream.Controllers
             if (deactivatedUser == null) return NotFound("User not found");
             return Ok("User deactivated successfully");
         }
+
+
+        /// Deletes a user by their ID
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var isDeleted = await _userService.DeleteUser(id);
+            if (!isDeleted) return NotFound("User not found");
+            return Ok("User deleted successfully");
+        }
     }
 }
