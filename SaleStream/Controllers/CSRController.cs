@@ -5,9 +5,8 @@ using SaleStream.Services;
 
 namespace SaleStream.Controllers
 {
-    /// <summary>
+
     /// Handles operations for Customer Service Representatives (CSR).
-    /// </summary>
     [ApiController]
     [Route("api/csr")]
     [Authorize(Policy = "CSRPolicy")]  // Only CSR can access these routes
@@ -20,9 +19,9 @@ namespace SaleStream.Controllers
             _csrService = csrService;
         }
 
-        /// <summary>
+    
         /// CSR can view all user accounts.
-        /// </summary>
+
         [HttpGet("users")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -30,9 +29,9 @@ namespace SaleStream.Controllers
             return Ok(users);
         }
 
-        /// <summary>
+    
         /// CSR can activate newly registered inactive users.
-        /// </summary>
+
         [HttpPut("activate/{id}")]
         public async Task<IActionResult> ActivateUser(string id)
         {
@@ -42,9 +41,9 @@ namespace SaleStream.Controllers
             return Ok("User account activated successfully.");
         }
 
-        /// <summary>
+    
         /// CSR can reactivate deactivated users.
-        /// </summary>
+
         [HttpPut("reactivate/{id}")]
         public async Task<IActionResult> ReactivateUser(string id)
         {
@@ -52,6 +51,32 @@ namespace SaleStream.Controllers
             if (user == null) return NotFound("User not found or already active.");
 
             return Ok("User account reactivated successfully.");
+        }
+
+    
+        /// CSR can view all activated user accounts.
+
+        [HttpGet("activated-users")]
+        public async Task<IActionResult> GetAllActivatedUsers()
+        {
+            var users = await _csrService.GetAllActivatedUsers();
+            if (users == null || !users.Any())
+                return NotFound("No activated users found.");
+            
+            return Ok(users);
+        }
+
+    
+        /// CSR can view all deactivated user accounts.
+
+        [HttpGet("deactivated-users")]
+        public async Task<IActionResult> GetAllDeactivatedUsers()
+        {
+            var users = await _csrService.GetAllDeactivatedUsers();
+            if (users == null || !users.Any())
+                return NotFound("No deactivated users found.");
+
+            return Ok(users);
         }
     }
 }

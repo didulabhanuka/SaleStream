@@ -3,9 +3,8 @@ using SaleStream.Models;
 
 namespace SaleStream.Repositories
 {
-    /// <summary>
+
     /// Data access for Customer Service Representatives (CSR) operations.
-    /// </summary>
     public class CSRRepository
     {
         private readonly IMongoCollection<User> _users;
@@ -16,28 +15,36 @@ namespace SaleStream.Repositories
             _users = database.GetCollection<User>("Users");
         }
 
-        /// <summary>
+    
         /// Retrieves all users for the CSR to view.
-        /// </summary>
+
         public async Task<IEnumerable<User>> GetAllUsers()
         {
             return await _users.Find(_ => true).ToListAsync();
         }
 
-        /// <summary>
+    
         /// Retrieves a user by their ID.
-        /// </summary>
+
         public async Task<User> GetUserById(string id)
         {
             return await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
         }
 
-        /// <summary>
+    
         /// Updates a user's status, such as activation or reactivation.
-        /// </summary>
+
         public async Task UpdateUser(User user)
         {
             await _users.ReplaceOneAsync(u => u.Id == user.Id, user);
+        }
+
+    
+        /// Retrieves users based on their activation status (true = activated, false = deactivated).
+
+        public async Task<IEnumerable<User>> GetUsersByStatus(bool isActive)
+        {
+            return await _users.Find(u => u.IsActive == isActive).ToListAsync();
         }
     }
 }

@@ -3,9 +3,8 @@ using SaleStream.Repositories;
 
 namespace SaleStream.Services
 {
-    /// <summary>
-    /// Handles business logic for Customer Service Representatives (CSR).
-    /// </summary>
+
+    /// Handles business logic for Customer Service Representatives (CSR)
     public class CSRService
     {
         private readonly CSRRepository _csrRepository;
@@ -15,17 +14,15 @@ namespace SaleStream.Services
             _csrRepository = csrRepository;
         }
 
-        /// <summary>
-        /// Retrieves all user accounts for the CSR.
-        /// </summary>
+    
+        /// Retrieves all user accounts for the CSR
         public async Task<IEnumerable<User>> GetAllUsers()
         {
             return await _csrRepository.GetAllUsers();
         }
 
-        /// <summary>
-        /// Activates an inactive user account.
-        /// </summary>
+    
+        /// Activates an inactive user account
         public async Task<User> ActivateUser(string id)
         {
             var user = await _csrRepository.GetUserById(id);
@@ -36,9 +33,8 @@ namespace SaleStream.Services
             return user;
         }
 
-        /// <summary>
+    
         /// Reactivates a deactivated user account.
-        /// </summary>
         public async Task<User> ReactivateUser(string id)
         {
             var user = await _csrRepository.GetUserById(id);
@@ -47,6 +43,20 @@ namespace SaleStream.Services
             user.IsActive = true;
             await _csrRepository.UpdateUser(user);
             return user;
+        }
+
+    
+        /// Retrieves all activated users for the CSR.
+        public async Task<IEnumerable<User>> GetAllActivatedUsers()
+        {
+            return await _csrRepository.GetUsersByStatus(true);  // true means activated
+        }
+
+    
+        /// Retrieves all deactivated users for the CSR.
+        public async Task<IEnumerable<User>> GetAllDeactivatedUsers()
+        {
+            return await _csrRepository.GetUsersByStatus(false);  // false means deactivated
         }
     }
 }
