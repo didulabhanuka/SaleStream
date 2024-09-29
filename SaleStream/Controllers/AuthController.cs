@@ -6,8 +6,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace SaleStream.Controllers
 {
-
-    /// Handles authentication and authorization
+    /// <summary>
+    /// Handles authentication and authorization.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
@@ -23,9 +24,9 @@ namespace SaleStream.Controllers
             _configuration = configuration;
         }
 
-    
+        /// <summary>
         /// Registers a new user with inactive status by default.
-
+        /// </summary>
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register(User user)
@@ -41,9 +42,9 @@ namespace SaleStream.Controllers
             }
         }
 
-    
-        /// Logs in a user using email and password via JSON.
-
+        /// <summary>
+        /// Logs in a user or vendor using email and password via JSON.
+        /// </summary>
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginData loginData)
@@ -54,19 +55,18 @@ namespace SaleStream.Controllers
                 return BadRequest("Email and password are required.");
             }
 
-            // Check predefined users from appsettings.json
+            // Check predefined users from appsettings.json (Admin/CSR)
             var predefinedUsersSection = _configuration.GetSection("PredefinedUsers");
             User predefinedUser = null;
 
-            // Check if the login matches predefined users (Administrator/CSR)
-            if (loginData.Email == predefinedUsersSection.GetSection("Administrator:Email").Value &&
-                loginData.Password == predefinedUsersSection.GetSection("Administrator:Password").Value)
+            if (loginData.Email == predefinedUsersSection.GetSection("Admin:Email").Value &&
+                loginData.Password == predefinedUsersSection.GetSection("Admin:Password").Value)
             {
                 predefinedUser = new User
                 {
-                    Id = predefinedUsersSection.GetSection("Administrator:Id").Value,
+                    Id = predefinedUsersSection.GetSection("Admin:Id").Value,
                     Email = loginData.Email,
-                    Role = predefinedUsersSection.GetSection("Administrator:Role").Value
+                    Role = predefinedUsersSection.GetSection("Admin:Role").Value
                 };
             }
             else if (loginData.Email == predefinedUsersSection.GetSection("CSR:Email").Value &&
@@ -93,7 +93,7 @@ namespace SaleStream.Controllers
                 });
             }
 
-            // Authenticate regular users
+            // Authenticate regular users and vendors
             var user = await _authService.AuthenticateUser(loginData.Email, loginData.Password);
             if (user == null)
                 return Unauthorized("Invalid email or password.");
@@ -112,8 +112,9 @@ namespace SaleStream.Controllers
         }
     }
 
-
+    /// <summary>
     /// LoginData class to capture email and password from JSON body.
+    /// </summary>
     public class LoginData
     {
         public string Email { get; set; }

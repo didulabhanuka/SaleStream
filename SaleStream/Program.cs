@@ -19,6 +19,16 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<CSRRepository>();
 builder.Services.AddScoped<CSRService>();
 
+// Register repositories and services
+builder.Services.AddScoped<ProductRepository>();
+builder.Services.AddScoped<ProductService>();
+
+// Register services and repositories
+builder.Services.AddScoped<AdminRepository>();
+builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<VendorRepository>();
+builder.Services.AddScoped<VendorService>();
+
 // Configure JWT and role-based policies
 builder.Services.ConfigureJwtAndRoles(builder.Configuration);
 

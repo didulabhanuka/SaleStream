@@ -38,6 +38,7 @@ namespace SaleStream.Configurations
                 options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
                 options.AddPolicy("VendorPolicy", policy => policy.RequireRole("Vendor"));
                 options.AddPolicy("CSRPolicy", policy => policy.RequireRole("CSR"));
+                
             });
         }
     }
