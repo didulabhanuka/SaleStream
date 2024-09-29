@@ -5,9 +5,8 @@ using SaleStream.Services;
 
 namespace SaleStream.Controllers
 {
-    /// <summary>
+
     /// Handles vendor-specific actions such as updating and deactivating their accounts.
-    /// </summary>
     [ApiController]
     [Route("api/vendor")]
     [Authorize(Policy = "VendorPolicy")]  // Only vendors can access this controller
@@ -20,9 +19,9 @@ namespace SaleStream.Controllers
             _vendorService = vendorService;
         }
 
-        /// <summary>
+    
         /// Vendor updates their profile.
-        /// </summary>
+
         [HttpPut("update")]
         public async Task<IActionResult> UpdateVendor([FromBody] Vendor updatedVendor)
         {
@@ -39,9 +38,9 @@ namespace SaleStream.Controllers
             }
         }
 
-        /// <summary>
+    
         /// Vendor deactivates their account.
-        /// </summary>
+
         [HttpPut("deactivate")]
         public async Task<IActionResult> DeactivateVendor(string vendorId)
         {

@@ -4,9 +4,8 @@ using BCrypt.Net;
 
 namespace SaleStream.Services
 {
-    /// <summary>
+
     /// Manages authentication and registration logic for both users and vendors.
-    /// </summary>
     public class AuthService
     {
         private readonly UserRepository _userRepository;
@@ -18,9 +17,8 @@ namespace SaleStream.Services
             _vendorRepository = vendorRepository;
         }
 
-        /// <summary>
+    
         /// Registers a new user with hashed password and inactive status by default.
-        /// </summary>
         public async Task RegisterUser(string username, string email, string password)
         {
             var existingUser = await _userRepository.GetUserByEmail(email);
@@ -40,9 +38,8 @@ namespace SaleStream.Services
             await _userRepository.CreateUser(user);
         }
 
-        /// <summary>
+    
         /// Authenticates a user or vendor based on email and password.
-        /// </summary>
         public async Task<User> AuthenticateUser(string email, string password)
         {
             // First, check if the email matches a user

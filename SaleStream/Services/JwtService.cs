@@ -24,7 +24,6 @@ namespace SaleStream.Services
 
     
         /// Generates a JWT token for the given user
-
         public string GenerateToken(User user)
         {
             if (string.IsNullOrEmpty(user.Email))

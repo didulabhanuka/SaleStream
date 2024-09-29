@@ -4,9 +4,8 @@ using BCrypt.Net;  // For password hashing
 
 namespace SaleStream.Services
 {
-    /// <summary>
+
     /// Admin service for registering vendor accounts.
-    /// </summary>
     public class AdminService
     {
         private readonly AdminRepository _adminRepository;
@@ -16,9 +15,8 @@ namespace SaleStream.Services
             _adminRepository = adminRepository;
         }
 
-        /// <summary>
+    
         /// Registers a new vendor account with a password.
-        /// </summary>
         public async Task<Vendor> RegisterVendor(string name, string email, string password)
         {
             // Ensure the vendor email does not already exist

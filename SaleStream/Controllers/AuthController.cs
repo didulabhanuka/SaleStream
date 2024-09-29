@@ -6,9 +6,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace SaleStream.Controllers
 {
-    /// <summary>
+
     /// Handles authentication and authorization.
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
@@ -24,9 +23,9 @@ namespace SaleStream.Controllers
             _configuration = configuration;
         }
 
-        /// <summary>
+    
         /// Registers a new user with inactive status by default.
-        /// </summary>
+
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register(User user)
@@ -42,9 +41,9 @@ namespace SaleStream.Controllers
             }
         }
 
-        /// <summary>
+    
         /// Logs in a user or vendor using email and password via JSON.
-        /// </summary>
+
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginData loginData)
@@ -112,9 +111,8 @@ namespace SaleStream.Controllers
         }
     }
 
-    /// <summary>
+
     /// LoginData class to capture email and password from JSON body.
-    /// </summary>
     public class LoginData
     {
         public string Email { get; set; }

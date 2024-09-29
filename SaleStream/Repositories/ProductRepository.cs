@@ -17,7 +17,6 @@ namespace SaleStream.Repositories
 
     
         /// Creates a new product in the database.
-
         public async Task CreateProduct(Product product)
         {
             await _products.InsertOneAsync(product);
@@ -25,7 +24,6 @@ namespace SaleStream.Repositories
 
     
         /// Retrieves all products (active or deactivated).
-
         public async Task<IEnumerable<Product>> GetAllProducts()
         {
             return await _products.Find(_ => true).ToListAsync();
@@ -33,7 +31,6 @@ namespace SaleStream.Repositories
 
     
         /// Retrieves products based on their activation status.
-
         public async Task<IEnumerable<Product>> GetProductsByStatus(bool isActive)
         {
             return await _products.Find(p => p.IsActive == isActive).ToListAsync();
@@ -41,7 +38,6 @@ namespace SaleStream.Repositories
 
     
         /// Updates an existing product in the database.
-
         public async Task UpdateProduct(Product product)
         {
             await _products.ReplaceOneAsync(p => p.Id == product.Id, product);
@@ -49,7 +45,6 @@ namespace SaleStream.Repositories
 
     
         /// Deletes a product by ID from the database.
-
         public async Task<bool> DeleteProduct(string id)
         {
             var result = await _products.DeleteOneAsync(p => p.Id == id);
@@ -58,7 +53,6 @@ namespace SaleStream.Repositories
 
     
         /// Retrieves a product by ID from the database.
-
         public async Task<Product> GetProductById(string id)
         {
             return await _products.Find(p => p.Id == id).FirstOrDefaultAsync();

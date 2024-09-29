@@ -13,17 +13,15 @@ namespace SaleStream.Repositories
             _vendors = database.GetCollection<Vendor>("Vendors");
         }
 
-        /// <summary>
+
         /// Creates a new vendor account.
-        /// </summary>
         public async Task CreateVendor(Vendor vendor)
         {
             await _vendors.InsertOneAsync(vendor);
         }
 
-        /// <summary>
+
         /// Retrieves a vendor by email.
-        /// </summary>
         public async Task<Vendor> GetVendorByEmail(string email)
         {
             return await _vendors.Find(v => v.Email == email).FirstOrDefaultAsync();

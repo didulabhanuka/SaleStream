@@ -4,9 +4,8 @@ using SaleStream.Services;
 
 namespace SaleStream.Controllers
 {
-    /// <summary>
+
     /// Handles admin-specific actions such as registering vendors.
-    /// </summary>
     [ApiController]
     [Route("api/admin")]
     [Authorize(Policy = "AdminPolicy")]  // Only admins can access this controller
@@ -19,9 +18,9 @@ namespace SaleStream.Controllers
             _adminService = adminService;
         }
 
-        /// <summary>
+    
         /// Admin registers a new vendor account with a password.
-        /// </summary>
+
         [HttpPost("register-vendor")]
         public async Task<IActionResult> RegisterVendor([FromBody] VendorRegistrationRequest vendorRequest)
         {
@@ -37,9 +36,9 @@ namespace SaleStream.Controllers
             }
         }
 
-        /// <summary>
+    
         /// DTO for vendor registration, including password.
-        /// </summary>
+
         public class VendorRegistrationRequest
         {
             public string Name { get; set; }

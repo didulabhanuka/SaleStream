@@ -17,7 +17,6 @@ namespace SaleStream.Repositories
 
     
         /// Retrieves all users for the CSR to view.
-
         public async Task<IEnumerable<User>> GetAllUsers()
         {
             return await _users.Find(_ => true).ToListAsync();
@@ -25,7 +24,6 @@ namespace SaleStream.Repositories
 
     
         /// Retrieves a user by their ID.
-
         public async Task<User> GetUserById(string id)
         {
             return await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
@@ -33,7 +31,6 @@ namespace SaleStream.Repositories
 
     
         /// Updates a user's status, such as activation or reactivation.
-
         public async Task UpdateUser(User user)
         {
             await _users.ReplaceOneAsync(u => u.Id == user.Id, user);
@@ -41,7 +38,6 @@ namespace SaleStream.Repositories
 
     
         /// Retrieves users based on their activation status (true = activated, false = deactivated).
-
         public async Task<IEnumerable<User>> GetUsersByStatus(bool isActive)
         {
             return await _users.Find(u => u.IsActive == isActive).ToListAsync();
