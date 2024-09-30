@@ -50,7 +50,7 @@ namespace SaleStream.Controllers
     
         /// Gets all deactivated products, accessible to Admins, CSRs, and Vendors.
         [HttpGet("deactivated")]
-        [Authorize(Policy = "AdminCSRVendorPolicy")]  // Access for Admins, CSRs, and Vendors
+        [Authorize(Policy = "VendorPolicy")]  // Only vendors can update products
         public async Task<IActionResult> GetAllDeactivatedProducts()
         {
             var deactivatedProducts = await _productService.GetAllDeactivatedProducts();
@@ -108,7 +108,7 @@ namespace SaleStream.Controllers
     
         /// Activates a product listing. Accessible only to Admins.
         [HttpPut("activate/{id}")]
-        [Authorize(Policy = "AdminPolicy")]  // Only admins can activate products
+        [Authorize(Policy = "VendorPolicy")]  // Only vendors can update products
         public async Task<IActionResult> ActivateProduct(string id)
         {
             var product = await _productService.ActivateProduct(id);
@@ -120,7 +120,7 @@ namespace SaleStream.Controllers
     
         /// Deactivates a product listing. Accessible only to Admins.
         [HttpPut("deactivate/{id}")]
-        [Authorize(Policy = "AdminPolicy")]  // Only admins can deactivate products
+        [Authorize(Policy = "VendorPolicy")]  // Only vendors can update products
         public async Task<IActionResult> DeactivateProduct(string id)
         {
             var product = await _productService.DeactivateProduct(id);
