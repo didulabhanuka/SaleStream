@@ -47,16 +47,25 @@ namespace SaleStream.Services
 
     
         /// Creates a new product after validating the categories.
-        public async Task<Product> CreateProduct(Product product)
-        {
-            if (!ValidateCategories(product.CategoryId))
-            {
-                throw new Exception("Invalid category selected.");
-            }
+public async Task<Product> CreateProduct(Product product)
+{
+    // Ensure the category is valid
+    if (!ValidateCategories(product.CategoryId))
+    {
+        throw new Exception("Invalid category selected.");
+    }
 
-            await _productRepository.CreateProduct(product);
-            return product;
-        }
+    // Ensure VendorId is not null
+    if (string.IsNullOrEmpty(product.VendorId))
+    {
+        throw new Exception("Vendor ID is required.");
+    }
+
+    // Pass the product to the repository for insertion
+    await _productRepository.CreateProduct(product);
+    return product;
+}
+
 
     
         /// Updates an existing product after validating the categories.

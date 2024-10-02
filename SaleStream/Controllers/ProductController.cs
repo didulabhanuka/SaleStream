@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SaleStream.Models;
 using SaleStream.Services;
+using System.Security.Claims;
 
 namespace SaleStream.Controllers
 {
@@ -65,7 +66,20 @@ namespace SaleStream.Controllers
         {
             try
             {
+                // Retrieve the vendor (user) ID from the JWT token
+                var vendorId = User.FindFirst("userId")?.Value;
+
+                if (string.IsNullOrEmpty(vendorId))
+                {
+                    return Unauthorized("Vendor ID not found in the token.");
+                }
+
+                // Assign the vendor ID to the product
+                product.VendorId = vendorId;
+
+                // Call the service to create the product
                 var createdProduct = await _productService.CreateProduct(product);
+                
                 return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
             }
             catch (Exception ex)
@@ -73,6 +87,7 @@ namespace SaleStream.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
 
     
         /// Updates an existing product. Accessible only to Vendors.

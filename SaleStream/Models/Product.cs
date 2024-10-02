@@ -10,5 +10,6 @@ namespace SaleStream.Models
         public string CategoryId { get; set; }  // Link to the Category
         public bool IsActive { get; set; } = true;  // Product is active by default
         public int Quantity { get; set; }  
+        public string? VendorId { get; set; } 
     }
 }
