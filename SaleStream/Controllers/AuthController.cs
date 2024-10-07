@@ -35,7 +35,7 @@ namespace SaleStream.Controllers
             var newUser = new User
             {
                 Email = model.Email,
-                Password = UserService.EncryptPassword(model.Password),
+                Password = model.Password,
                 Role = "User",  // Default role is User
                 Status = 1  // Active by default
             };
