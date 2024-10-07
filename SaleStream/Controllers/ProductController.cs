@@ -2,12 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SaleStream.Models;
 using SaleStream.Services;
+using System.IO;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace SaleStream.Controllers
 {
-
-    /// Handles product management for vendors, CSRs, and administrators.
     [ApiController]
     [Route("api/product")]
     public class ProductController : ControllerBase
@@ -19,129 +19,147 @@ namespace SaleStream.Controllers
             _productService = productService;
         }
 
-    
-        /// Gets the list of fixed categories that everyone can access.
-        [HttpGet("categories")]
-        public IActionResult GetFixedCategories()
-        {
-            var categories = _productService.GetFixedCategories();
-            return Ok(categories);
-        }
-
-    
-        /// Gets all products, accessible to everyone.
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllProducts()
-        {
-            var products = await _productService.GetAllProducts();
-            return Ok(products);
-        }
-
-    
-        /// Gets a specific product by its ID, accessible to everyone.
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(string id)
-        {
-            var product = await _productService.GetProductById(id);
-            if (product == null)
-                return NotFound("Product not found.");
-            return Ok(product);
-        }
-
-    
-        /// Gets all deactivated products, accessible to Admins, CSRs, and Vendors.
-        [HttpGet("deactivated")]
-        [Authorize(Policy = "VendorPolicy")]  // Only vendors can update products
-        public async Task<IActionResult> GetAllDeactivatedProducts()
-        {
-            var deactivatedProducts = await _productService.GetAllDeactivatedProducts();
-            return Ok(deactivatedProducts);
-        }
-
-    
-        /// Creates a new product. Accessible only to Vendors.
+        // Vendor creates a product with image upload
+        [Authorize(Roles = "Vendor")]
         [HttpPost("create")]
-        [Authorize(Policy = "VendorPolicy")]  // Only vendors can create products
-        public async Task<IActionResult> CreateProduct([FromBody] Product product)
+        public async Task<IActionResult> CreateProduct([FromForm] ProductModel productModel, IFormFile imageFile)
         {
-            try
-            {
-                // Retrieve the vendor (user) ID from the JWT token
-                var vendorId = User.FindFirst("userId")?.Value;
+            var vendorEmail = User.FindFirst(ClaimTypes.Email)?.Value;
 
-                if (string.IsNullOrEmpty(vendorId))
+            // Validate image file
+            if (imageFile == null || imageFile.Length == 0)
+            {
+                return BadRequest(new { error = "Image file is required." });
+            }
+
+            // Save image to server
+            var imageFileName = Path.GetFileNameWithoutExtension(imageFile.FileName) + "_" + Guid.NewGuid() + Path.GetExtension(imageFile.FileName);
+            var filePath = Path.Combine("wwwroot/images", imageFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(stream);
+            }
+
+            // Create new product
+            var product = new Product
+            {
+                ProductName = productModel.ProductName,
+                Price = productModel.Price,
+                AvailableQuantity = productModel.AvailableQuantity,
+                Category = productModel.Category,
+                Description = productModel.Description,
+                Image = imageFileName,  // Save image path
+                VendorEmail = vendorEmail,
+                StockStatus = 2,
+                CategoryStatus = 1
+            };
+
+            await _productService.CreateProductAsync(product);
+            return Ok(new { message = "Product created successfully." });
+        }
+
+        // Vendor updates a product with optional image upload
+        [Authorize(Roles = "Vendor")]
+        [HttpPut("update/{productId}")]
+        public async Task<IActionResult> UpdateProduct(string productId, [FromForm] ProductModel productUpdate, IFormFile imageFile)
+        {
+            var existingProduct = await _productService.GetProductByIdAsync(productId);
+            if (existingProduct == null)
+            {
+                return NotFound("Product not found.");
+            }
+
+            var vendorEmail = User.FindFirst(ClaimTypes.Email)?.Value;  // Vendor Email from token
+            if (existingProduct.VendorEmail != vendorEmail)
+            {
+                return Unauthorized("You can only update your own products.");
+            }
+
+            // Update fields
+            existingProduct.ProductName = productUpdate.ProductName;
+            existingProduct.Price = productUpdate.Price;
+            existingProduct.AvailableQuantity = productUpdate.AvailableQuantity;
+            existingProduct.Category = productUpdate.Category;
+            existingProduct.Description = productUpdate.Description;
+
+            // Handle optional image update
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                // Save new image
+                var imageFileName = Path.GetFileNameWithoutExtension(imageFile.FileName) + "_" + Guid.NewGuid() + Path.GetExtension(imageFile.FileName);
+                var filePath = Path.Combine("wwwroot/images", imageFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    return Unauthorized("Vendor ID not found in the token.");
+                    await imageFile.CopyToAsync(stream);
                 }
 
-                // Assign the vendor ID to the product
-                product.VendorId = vendorId;
+                // Update the product's image field
+                existingProduct.Image = imageFileName;
+            }
 
-                // Call the service to create the product
-                var createdProduct = await _productService.CreateProduct(product);
-                
-                return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _productService.UpdateProductAsync(existingProduct);
+            return Ok("Product updated successfully.");
         }
 
-
-    
-        /// Updates an existing product. Accessible only to Vendors.
-        [HttpPut("update/{id}")]
-        [Authorize(Policy = "VendorPolicy")]  // Only vendors can update products
-        public async Task<IActionResult> UpdateProduct(string id, [FromBody] Product updatedProduct)
+        // Vendor deletes a product
+        [Authorize(Roles = "Vendor")]
+        [HttpDelete("delete/{productId}")]
+        public async Task<IActionResult> DeleteProduct(string productId)
         {
-            try
+            var existingProduct = await _productService.GetProductByIdAsync(productId);
+            if (existingProduct == null)
             {
-                var product = await _productService.UpdateProduct(id, updatedProduct);
-                if (product == null)
-                    return NotFound("Product not found.");
-                return Ok(product);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-    
-        /// Deletes a product by its ID. Accessible only to Vendors.
-        [HttpDelete("delete/{id}")]
-        [Authorize(Policy = "VendorPolicy")]  // Only vendors can delete products
-        public async Task<IActionResult> DeleteProduct(string id)
-        {
-            var isDeleted = await _productService.DeleteProduct(id);
-            if (!isDeleted)
                 return NotFound("Product not found.");
+            }
+
+            var vendorEmail = User.FindFirst(ClaimTypes.Email)?.Value;  // Vendor Email from token
+            if (existingProduct.VendorEmail != vendorEmail)
+            {
+                return Unauthorized("You can only delete your own products.");
+            }
+
+            await _productService.DeleteProductAsync(productId);
             return Ok("Product deleted successfully.");
         }
 
-    
-        /// Activates a product listing. Accessible only to Admins.
-        [HttpPut("activate/{id}")]
-        [Authorize(Policy = "VendorPolicy")]  // Only vendors can update products
-        public async Task<IActionResult> ActivateProduct(string id)
+        // Admin updates stock status
+        [Authorize(Roles = "Admin")]
+        [HttpPut("stock-status/{productId}")]
+        public async Task<IActionResult> UpdateStockStatus(string productId, [FromBody] StockStatusModel model)
         {
-            var product = await _productService.ActivateProduct(id);
-            if (product == null)
-                return NotFound("Product not found.");
-            return Ok("Product activated successfully.");
+            await _productService.UpdateStockStatusAsync(productId, model.StockStatus);
+            return Ok("Stock status updated successfully.");
         }
 
-    
-        /// Deactivates a product listing. Accessible only to Admins.
-        [HttpPut("deactivate/{id}")]
-        [Authorize(Policy = "VendorPolicy")]  // Only vendors can update products
-        public async Task<IActionResult> DeactivateProduct(string id)
+        public class StockStatusModel
         {
-            var product = await _productService.DeactivateProduct(id);
-            if (product == null)
-                return NotFound("Product not found.");
-            return Ok("Product deactivated successfully.");
+            public int StockStatus { get; set; }
+        }
+
+        // Admin updates category status
+        [Authorize(Roles = "Admin")]
+        [HttpPut("category-status")]
+        public async Task<IActionResult> UpdateCategoryStatus([FromBody] CategoryStatusModel categoryStatusModel)
+        {
+            await _productService.UpdateCategoryStatusAsync(categoryStatusModel.Category, categoryStatusModel.CategoryStatus);
+            return Ok("Category status updated successfully.");
+        }
+
+        public class CategoryStatusModel
+        {
+            public string Category { get; set; }
+            public int CategoryStatus { get; set; }
+        }
+
+        // Fetch specific product details
+        [Authorize]
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetProduct(string productId)
+        {
+            var product = await _productService.GetProductByIdAsync(productId);
+            return Ok(product);
         }
     }
 }

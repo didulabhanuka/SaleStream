@@ -1,10 +1,10 @@
 using MongoDB.Driver;
 using SaleStream.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SaleStream.Repositories
 {
-
-    /// Handles data access for product management.
     public class ProductRepository
     {
         private readonly IMongoCollection<Product> _products;
@@ -15,47 +15,55 @@ namespace SaleStream.Repositories
             _products = database.GetCollection<Product>("Products");
         }
 
-    
-        /// Creates a new product in the database.
+        // Create a new product in the database
         public async Task CreateProduct(Product product)
         {
             await _products.InsertOneAsync(product);
         }
 
-    
-        /// Retrieves all products (active or deactivated).
-        public async Task<IEnumerable<Product>> GetAllProducts()
+        // Retrieve all products
+        public async Task<List<Product>> GetAllProducts()
         {
             return await _products.Find(_ => true).ToListAsync();
         }
 
-    
-        /// Retrieves products based on their activation status.
-        public async Task<IEnumerable<Product>> GetProductsByStatus(bool isActive)
+        // Retrieve a product by ID
+        public async Task<Product> GetProductById(string id)
         {
-            return await _products.Find(p => p.IsActive == isActive).ToListAsync();
+            return await _products.Find(p => p.Id == id).FirstOrDefaultAsync();
         }
 
-    
-        /// Updates an existing product in the database.
+        // Update an existing product
         public async Task UpdateProduct(Product product)
         {
             await _products.ReplaceOneAsync(p => p.Id == product.Id, product);
         }
 
-    
-        /// Deletes a product by ID from the database.
+        // Delete a product by its ID
         public async Task<bool> DeleteProduct(string id)
         {
             var result = await _products.DeleteOneAsync(p => p.Id == id);
             return result.DeletedCount > 0;
         }
 
-    
-        /// Retrieves a product by ID from the database.
-        public async Task<Product> GetProductById(string id)
+        // Update stock status of a product
+        public async Task UpdateStockStatus(string productId, int stockStatus)
         {
-            return await _products.Find(p => p.Id == id).FirstOrDefaultAsync();
+            var product = await _products.Find(p => p.Id == productId).FirstOrDefaultAsync();
+            if (product != null)
+            {
+                product.StockStatus = stockStatus;
+                product.LowStockStatusNotificationDateAndTime = DateTime.Now;
+                await _products.ReplaceOneAsync(p => p.Id == product.Id, product);
+            }
+        }
+
+        // Update category status of products in a category
+        public async Task UpdateCategoryStatus(string category, int categoryStatus)
+        {
+            var filter = Builders<Product>.Filter.Eq("Category", category);
+            var update = Builders<Product>.Update.Set("CategoryStatus", categoryStatus);
+            await _products.UpdateManyAsync(filter, update);
         }
     }
 }

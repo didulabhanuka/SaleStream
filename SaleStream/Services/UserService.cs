@@ -1,11 +1,10 @@
 using SaleStream.Models;
 using SaleStream.Repositories;
+using System.Threading.Tasks;
 using BCrypt.Net;
 
 namespace SaleStream.Services
 {
-
-    /// Provides user management services such as updating, deleting, and deactivating users
     public class UserService
     {
         private readonly UserRepository _userRepository;
@@ -15,45 +14,50 @@ namespace SaleStream.Services
             _userRepository = userRepository;
         }
 
-    
-        /// Retrieves a user by their ID
-        public async Task<User> GetUserById(string id) => 
-            await _userRepository.GetUserById(id) ?? null;
-
-    
-        /// Updates user details such as username, email, and password
-        public async Task<User> UpdateUser(string id, User updatedUser)
+        public async Task<User> GetUserByEmailAsync(string email)
         {
-            var user = await _userRepository.GetUserById(id);
-            if (user == null) return null;
-
-            user.Username = updatedUser.Username;
-            user.Email = updatedUser.Email;
-
-            if (!string.IsNullOrEmpty(updatedUser.PasswordHash))
-            {
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(updatedUser.PasswordHash);
-            }
-
-            await _userRepository.UpdateUser(user);
-            return user;
+            return await _userRepository.GetUserByEmailAsync(email);
         }
 
-    
-        /// Deletes a user by their ID
-        public async Task<bool> DeleteUser(string id) =>
-            await _userRepository.DeleteUser(id);
-
-    
-        /// Deactivates a user by setting IsActive to false
-        public async Task<User> DeactivateUser(string id)
+        public async Task CreateUserAsync(User user)
         {
-            var user = await _userRepository.GetUserById(id);
-            if (user == null) return null;
+            user.Password = EncryptPassword(user.Password);  // Encrypt password before saving
+            await _userRepository.CreateUserAsync(user);
+        }
 
-            user.IsActive = false;
-            await _userRepository.UpdateUser(user);
-            return user;
+        public async Task UpdateUserAsync(User user)
+        {
+            await _userRepository.UpdateUserAsync(user);
+        }
+
+        public async Task<bool> IsEmailUniqueAsync(string email)
+        {
+            return await _userRepository.IsEmailUniqueAsync(email);
+        }
+
+        public async Task DeleteUserAsync(string userId)
+        {
+            await _userRepository.DeleteUserAsync(userId);
+        }
+
+        public static string EncryptPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        public static bool VerifyPassword(string password, string hashedPassword)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+        }
+
+        public async Task<List<User>> GetAllUsersAsync()
+        {
+            return await _userRepository.GetAllUsersAsync();
+        }
+
+        public async Task<User> GetUserByIdAsync(string id)
+        {
+            return await _userRepository.GetUserByIdAsync(id);
         }
     }
 }

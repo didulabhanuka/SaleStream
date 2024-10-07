@@ -11,21 +11,22 @@ builder.Services.AddSingleton<IMongoClient, MongoClient>(s =>
 
 // Register repositories and services
 builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JwtService>();
-
-// Register CSR-related services and repositories
-builder.Services.AddScoped<CSRRepository>();
-builder.Services.AddScoped<CSRService>();
 
 // Register repositories and services
 builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<ProductService>();
 
+// Register repositories and services
+builder.Services.AddScoped<NotificationRepository>();
+builder.Services.AddScoped<NotificationService>();
+
+// Register repositories and services
+builder.Services.AddScoped<OrderRepository>();
+builder.Services.AddScoped<OrderService>();
+
 // Register services and repositories
-builder.Services.AddScoped<AdminRepository>();
-builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<VendorRepository>();
 builder.Services.AddScoped<VendorService>();
 

@@ -1,138 +1,62 @@
+using MongoDB.Driver;
 using SaleStream.Models;
-using SaleStream.Repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SaleStream.Services
 {
-
-    /// Handles business logic for managing products.
     public class ProductService
     {
-        private readonly ProductRepository _productRepository;
+        private readonly IMongoCollection<Product> _products;
 
-        // Fixed categories for products
-        private readonly List<string> _fixedCategories = new List<string>
+        public ProductService(IMongoClient client)
         {
-            "Electronics",
-            "Books",
-            "Clothing",
-            "Home Appliances",
-            "Furniture"
-        };
-
-        public ProductService(ProductRepository productRepository)
-        {
-            _productRepository = productRepository;
+            var database = client.GetDatabase("salestream");
+            _products = database.GetCollection<Product>("Products");
         }
 
-    
-        /// Returns the list of fixed categories.
-        public List<string> GetFixedCategories()
+        public async Task<List<Product>> GetProductsAsync()
         {
-            return _fixedCategories;
+            return await _products.Find(product => true).ToListAsync();
         }
 
-
-        /// Retrieves all products.
-        public async Task<IEnumerable<Product>> GetAllProducts()
+        public async Task<Product> GetProductByIdAsync(string productId)
         {
-            return await _productRepository.GetAllProducts();
+            return await _products.Find(p => p.Id == productId).FirstOrDefaultAsync();
         }
 
-
-        /// Retrieves all deactivated products.
-        public async Task<IEnumerable<Product>> GetAllDeactivatedProducts()
+        public async Task CreateProductAsync(Product product)
         {
-            return await _productRepository.GetProductsByStatus(false);  // false means deactivated
+            await _products.InsertOneAsync(product);
         }
 
-    
-        /// Creates a new product after validating the categories.
-        public async Task<Product> CreateProduct(Product product)
+        public async Task UpdateProductAsync(Product product)
         {
-            // Ensure the category is valid
-            if (!ValidateCategories(product.CategoryId))
+            await _products.ReplaceOneAsync(p => p.Id == product.Id, product);
+        }
+
+        public async Task DeleteProductAsync(string productId)
+        {
+            await _products.DeleteOneAsync(p => p.Id == productId);
+        }
+
+        public async Task UpdateStockStatusAsync(string productId, int stockStatus)
+        {
+            var product = await _products.Find(p => p.Id == productId).FirstOrDefaultAsync();
+            if (product != null)
             {
-                throw new Exception("Invalid category selected.");
+                product.StockStatus = stockStatus;
+                product.LowStockStatusNotificationDateAndTime = DateTime.Now;
+
+                await _products.ReplaceOneAsync(p => p.Id == product.Id, product);
             }
-
-            // Ensure VendorId is not null
-            if (string.IsNullOrEmpty(product.VendorId))
-            {
-                throw new Exception("Vendor ID is required.");
-            }
-
-            // Pass the product to the repository for insertion
-            await _productRepository.CreateProduct(product);
-            return product;
         }
 
-
-    
-        /// Updates an existing product after validating the categories.
-        public async Task<Product> UpdateProduct(string id, Product updatedProduct)
+        public async Task UpdateCategoryStatusAsync(string category, int categoryStatus)
         {
-            if (!ValidateCategories(updatedProduct.CategoryId))
-            {
-                throw new Exception("Invalid category selected.");
-            }
-
-            var product = await _productRepository.GetProductById(id);
-            if (product == null) return null;
-
-            product.Name = updatedProduct.Name;
-            product.Description = updatedProduct.Description;
-            product.Price = updatedProduct.Price;
-            product.CategoryId = updatedProduct.CategoryId;
-            product.Quantity = updatedProduct.Quantity;
-
-            await _productRepository.UpdateProduct(product);
-            return product;
-        }
-
-    
-        /// Validates that the selected categories are valid.
-        private bool ValidateCategories(string categoryId)
-        {
-            return _fixedCategories.Contains(categoryId);
-        }
-
-
-    
-        /// Deletes a product by ID.
-        public async Task<bool> DeleteProduct(string id)
-        {
-            return await _productRepository.DeleteProduct(id);
-        }
-
-    
-        /// Activates a product listing.
-        public async Task<Product> ActivateProduct(string id)
-        {
-            var product = await _productRepository.GetProductById(id);
-            if (product == null) return null;
-
-            product.IsActive = true;
-            await _productRepository.UpdateProduct(product);
-            return product;
-        }
-
-    
-        /// Deactivates a product listing.
-        public async Task<Product> DeactivateProduct(string id)
-        {
-            var product = await _productRepository.GetProductById(id);
-            if (product == null) return null;
-
-            product.IsActive = false;
-            await _productRepository.UpdateProduct(product);
-            return product;
-        }
-
-    
-        /// Retrieves a product by ID.
-        public async Task<Product> GetProductById(string id)
-        {
-            return await _productRepository.GetProductById(id);
+            var filter = Builders<Product>.Filter.Eq("Category", category);
+            var update = Builders<Product>.Update.Set("CategoryStatus", categoryStatus);
+            await _products.UpdateManyAsync(filter, update);
         }
     }
 }
