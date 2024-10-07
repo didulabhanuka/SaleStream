@@ -22,7 +22,7 @@ namespace SaleStream.Controllers
             _userService = userService;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminPolicy")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateVendor([FromBody] VendorCreateModel vendorModel)
         {
@@ -43,7 +43,7 @@ namespace SaleStream.Controllers
             return Ok("Vendor created successfully.");
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminPolicy")]
         [HttpPut("update/{vendorId}")]
         public async Task<IActionResult> UpdateVendor(string vendorId, [FromBody] VendorCreateModel updatedVendor)
         {
@@ -62,7 +62,7 @@ namespace SaleStream.Controllers
             return Ok("Vendor updated successfully.");
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminPolicy")]
         [HttpDelete("delete/{email}")]
         public async Task<IActionResult> DeleteVendor(string email)
         {
@@ -70,7 +70,7 @@ namespace SaleStream.Controllers
             return Ok("Vendor deleted successfully.");
         }
 
-        [Authorize(Roles = "Admin, Vendor")]
+        [Authorize(Policy = "VendorPolicy, AdminPolicy")]
         [HttpPost("deactivate/{email}")]
         public async Task<IActionResult> DeactivateVendor(string email)
         {
@@ -85,7 +85,7 @@ namespace SaleStream.Controllers
             return Ok("Vendor deactivated.");
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminPolicy")]
         [HttpPost("activate/{email}")]
         public async Task<IActionResult> ActivateVendor(string email)
         {

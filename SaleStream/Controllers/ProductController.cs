@@ -20,7 +20,7 @@ namespace SaleStream.Controllers
         }
 
         // Vendor creates a product with image upload
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Policy = "VendorPolicy")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductModel productModel, IFormFile imageFile)
         {
@@ -60,7 +60,7 @@ namespace SaleStream.Controllers
         }
 
         // Vendor updates a product with optional image upload
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Policy = "VendorPolicy")]
         [HttpPut("update/{productId}")]
         public async Task<IActionResult> UpdateProduct(string productId, [FromForm] ProductModel productUpdate, IFormFile imageFile)
         {
@@ -104,7 +104,7 @@ namespace SaleStream.Controllers
         }
 
         // Vendor deletes a product
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Policy = "VendorPolicy")]
         [HttpDelete("delete/{productId}")]
         public async Task<IActionResult> DeleteProduct(string productId)
         {
@@ -125,7 +125,7 @@ namespace SaleStream.Controllers
         }
 
         // Admin updates stock status
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminPolicy")]
         [HttpPut("stock-status/{productId}")]
         public async Task<IActionResult> UpdateStockStatus(string productId, [FromBody] StockStatusModel model)
         {
@@ -139,7 +139,7 @@ namespace SaleStream.Controllers
         }
 
         // Admin updates category status
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminPolicy")]
         [HttpPut("category-status")]
         public async Task<IActionResult> UpdateCategoryStatus([FromBody] CategoryStatusModel categoryStatusModel)
         {

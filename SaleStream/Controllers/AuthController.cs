@@ -74,7 +74,7 @@ namespace SaleStream.Controllers
             return Ok("Account deactivated.");
         }
 
-        [Authorize(Roles = "Customer Service Representative")]
+        [Authorize(Policy = "CSRPolicy")]
         [HttpPost("activate")]
         public async Task<IActionResult> ActivateAccount([FromBody] ActivateAccountRequest request)
         {
@@ -144,7 +144,7 @@ namespace SaleStream.Controllers
             return Forbid("Unauthorized to delete this account.");
         }
 
-        [Authorize(Roles = "Admin, Customer Service Representative, Vendor")]
+        [Authorize(Policy = "CSRPolicy, AdminPolicy, VendorPolicy")]
         [HttpGet("users")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -152,7 +152,7 @@ namespace SaleStream.Controllers
             return Ok(users);
         }
 
-        [Authorize(Roles = "Admin, Customer Service Representative, Vendor")]
+        [Authorize(Policy = "CSRPolicy, AdminPolicy, VendorPolicy")]
         [HttpGet("users/{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {

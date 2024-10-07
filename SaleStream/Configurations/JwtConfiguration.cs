@@ -43,7 +43,7 @@ namespace SaleStream.Configurations
         }
     }
 
-
+[Authorize(Policy = "VendorPolicy, AdminPolicy")]
     /// Holds Jwt Settings for authentication
     public class JwtSettings
     {
