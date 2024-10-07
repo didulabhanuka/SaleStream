@@ -33,8 +33,9 @@ namespace SaleStream.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("userId", user.Id),
-                new Claim("role", user.Role)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("Id", user.Id),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));

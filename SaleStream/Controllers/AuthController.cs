@@ -164,6 +164,33 @@ namespace SaleStream.Controllers
             return Ok(user);
         }
 
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetUserProfile()
+        {
+            // Get the authenticated user's email from the claims
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            // Fetch user details by email
+            var user = await _userService.GetUserByEmailAsync(email);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Return user profile information (excluding sensitive fields like password)
+            var userProfile = new
+            {
+                user.Id,
+                user.Email,
+                user.Role,
+                Status = user.Status == 1 ? "Active" : "Deactivated"
+            };
+
+            return Ok(userProfile);
+        }
+
+
         public class ChangePasswordModel
         {
             public string OldPassword { get; set; }
