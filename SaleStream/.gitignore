@@ -1,0 +1,86 @@
+# Ignore build results
+bin/
+obj/
+
+# Avoid ignoring folders that might contain source files
+!bin/**/*.config
+!obj/**/*.config
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files
+*.generated.cs
+Generated/
+
+# Rider / VSCode / IDE-specific settings
+.idea/
+.vscode/
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# Local history for Rider
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+
+# JetBrains specific files
+_ReSharper*/
+*.sln.iml
+
+# Mac OS files
+.DS_Store
+
+# Windows image file caches
+Thumbs.db
+
+# Visual Studio Code workspace history
+.history/
+
+# Logs
+*.log
+logs/
+
+# Environment variables and secrets
+.env
+
+# Ignore compiled outputs and logs
+*.dll
+*.exe
+*.pdb
+
+# Packages
+*.nupkg
+packages/
+
+# .NET specific
+project.lock.json
+project.fragment.lock.json
+
+# ASP.NET Scaffolding files
+ScaffoldingReadMe.txt
+
+# Entity Framework migrations
+Migrations/
+
+# NuGet Packages
+*.snupkg
+.nuget/
+
+# Web servers and cache
+wwwroot/
+node_modules/
+
+# Secrets and sensitive data
+secrets.json
+appsettings.*.json
+
+# Ignore package-lock.json
+package.json
+package-lock.json
