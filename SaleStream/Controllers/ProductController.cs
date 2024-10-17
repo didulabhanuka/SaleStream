@@ -20,7 +20,7 @@ namespace SaleStream.Controllers
         }
 
         // Vendor creates a product with image upload
-        [Authorize(Policy = "VendorPolicy")]
+        [Authorize(Roles = "Vendor")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductModel productModel, IFormFile imageFile)
         {
@@ -60,7 +60,7 @@ namespace SaleStream.Controllers
         }
 
         // Vendor updates a product with optional image upload
-        [Authorize(Policy = "VendorPolicy")]
+        [Authorize(Roles = "Vendor")]
         [HttpPut("update/{productId}")]
         public async Task<IActionResult> UpdateProduct(string productId, [FromForm] ProductModel productUpdate, IFormFile imageFile)
         {
@@ -104,7 +104,7 @@ namespace SaleStream.Controllers
         }
 
         // Vendor deletes a product
-        [Authorize(Policy = "VendorPolicy")]
+        [Authorize(Roles = "Vendor")]
         [HttpDelete("delete/{productId}")]
         public async Task<IActionResult> DeleteProduct(string productId)
         {
@@ -125,7 +125,7 @@ namespace SaleStream.Controllers
         }
 
         // Admin updates stock status
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("stock-status/{productId}")]
         public async Task<IActionResult> UpdateStockStatus(string productId, [FromBody] StockStatusModel model)
         {
@@ -139,7 +139,7 @@ namespace SaleStream.Controllers
         }
 
         // Admin updates category status
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("category-status")]
         public async Task<IActionResult> UpdateCategoryStatus([FromBody] CategoryStatusModel categoryStatusModel)
         {
@@ -161,5 +161,30 @@ namespace SaleStream.Controllers
             var product = await _productService.GetProductByIdAsync(productId);
             return Ok(product);
         }
+
+        // Fetch all products
+        [AllowAnonymous]
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            var products = await _productService.GetProductsAsync();
+            return Ok(products);
+        }
+
+        // Fetch all products of a specific vendor by vendor email
+        [AllowAnonymous]  // Allow everyone to access this route
+        [HttpGet("vendor/{vendorEmail}")]
+        public async Task<IActionResult> GetProductsByVendor(string vendorEmail)
+        {
+            var products = await _productService.GetProductsByVendorEmailAsync(vendorEmail);
+            if (products == null || products.Count == 0)
+            {
+                return NotFound("No products found for this vendor.");
+            }
+            return Ok(products);
+        }
+
+
+
     }
 }

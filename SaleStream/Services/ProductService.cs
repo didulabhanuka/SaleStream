@@ -58,5 +58,12 @@ namespace SaleStream.Services
             var update = Builders<Product>.Update.Set("CategoryStatus", categoryStatus);
             await _products.UpdateManyAsync(filter, update);
         }
+
+        public async Task<List<Product>> GetProductsByVendorEmailAsync(string vendorEmail)
+        {
+            return await _products.Find(product => product.VendorEmail == vendorEmail).ToListAsync();
+        }
+
+
     }
 }

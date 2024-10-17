@@ -65,5 +65,11 @@ namespace SaleStream.Repositories
             var update = Builders<Product>.Update.Set("CategoryStatus", categoryStatus);
             await _products.UpdateManyAsync(filter, update);
         }
+
+        public async Task<List<Product>> GetProductsByVendorEmail(string vendorEmail)
+        {
+            return await _products.Find(p => p.VendorEmail == vendorEmail).ToListAsync();
+        }
+
     }
 }

@@ -13,12 +13,14 @@ namespace SaleStream.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly VendorService _vendorService;
         private readonly JwtService _jwtService;
         private readonly IConfiguration _configuration;
 
-        public AuthController(UserService userService, JwtService jwtService, IConfiguration configuration)
+        public AuthController(UserService userService, VendorService vendorService, JwtService jwtService, IConfiguration configuration)
         {
             _userService = userService;
+            _vendorService = vendorService;
             _jwtService = jwtService;
             _configuration = configuration;
         }
@@ -54,9 +56,11 @@ namespace SaleStream.Controllers
                 return Unauthorized("Invalid credentials or inactive account.");
             }
 
-            var token = _jwtService.GenerateToken(user);
+            var token = _jwtService.GenerateToken(user.Id, user.Email, user.Role);
             return Ok(new { Token = token, Role = user.Role });
         }
+
+
 
         [Authorize]
         [HttpPost("deactivate")]
@@ -74,7 +78,7 @@ namespace SaleStream.Controllers
             return Ok("Account deactivated.");
         }
 
-        [Authorize(Policy = "CSRPolicy")]
+        [Authorize(Roles = "Customer Service Representative")]
         [HttpPost("activate")]
         public async Task<IActionResult> ActivateAccount([FromBody] ActivateAccountRequest request)
         {
@@ -144,7 +148,7 @@ namespace SaleStream.Controllers
             return Forbid("Unauthorized to delete this account.");
         }
 
-        [Authorize(Policy = "CSRPolicy, AdminPolicy, VendorPolicy")]
+        [Authorize(Roles = "Admin, Customer Service Representative, Vendor")]
         [HttpGet("users")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -152,7 +156,7 @@ namespace SaleStream.Controllers
             return Ok(users);
         }
 
-        [Authorize(Policy = "CSRPolicy, AdminPolicy, VendorPolicy")]
+        [Authorize(Roles = "Admin, Customer Service Representative, Vendor")]
         [HttpGet("users/{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {

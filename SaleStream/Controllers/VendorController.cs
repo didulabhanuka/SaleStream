@@ -22,7 +22,7 @@ namespace SaleStream.Controllers
             _userService = userService;
         }
 
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateVendor([FromBody] VendorCreateModel vendorModel)
         {
@@ -43,7 +43,7 @@ namespace SaleStream.Controllers
             return Ok("Vendor created successfully.");
         }
 
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("update/{vendorId}")]
         public async Task<IActionResult> UpdateVendor(string vendorId, [FromBody] VendorCreateModel updatedVendor)
         {
@@ -62,7 +62,7 @@ namespace SaleStream.Controllers
             return Ok("Vendor updated successfully.");
         }
 
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete/{email}")]
         public async Task<IActionResult> DeleteVendor(string email)
         {
@@ -70,7 +70,7 @@ namespace SaleStream.Controllers
             return Ok("Vendor deleted successfully.");
         }
 
-        [Authorize(Policy = "VendorPolicy, AdminPolicy")]
+        [Authorize(Roles = "Admin, Vendor")]
         [HttpPost("deactivate/{email}")]
         public async Task<IActionResult> DeactivateVendor(string email)
         {
@@ -85,7 +85,7 @@ namespace SaleStream.Controllers
             return Ok("Vendor deactivated.");
         }
 
-        [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("activate/{email}")]
         public async Task<IActionResult> ActivateVendor(string email)
         {
@@ -145,6 +145,27 @@ namespace SaleStream.Controllers
             await _vendorService.DeleteCommentAsync(vendorId, commentId, userId);
             return Ok("Comment deleted successfully.");
         }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        {
+            // Step 1: Get the vendor by email
+            var vendor = await _vendorService.GetVendorByEmailAsync(model.Email);
+
+            // Step 2: Check if the vendor exists, verify password, and ensure the vendor account is active
+            if (vendor == null || !UserService.VerifyPassword(model.Password, vendor.Password) || vendor.Status != 1)
+            {
+                return Unauthorized("Invalid credentials or inactive vendor account.");
+            }
+
+            // Step 3: Generate a JWT token for the vendor
+            var token = _jwtService.GenerateToken(vendor.Id, vendor.Email, "Vendor");
+
+            // Step 4: Return the token and vendor role
+            return Ok(new { Token = token, Role = "Vendor" });
+        }
+
     }
 
     public class CommentModel

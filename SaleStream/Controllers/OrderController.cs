@@ -128,7 +128,7 @@ namespace SaleStream.Controllers
         }
 
         // CSR/Admin cancel an order
-        [Authorize(Policy = "CSRPolicy, AdminPolicy")]
+        [Authorize(Roles = "Customer Service Representative, Admin")]
         [HttpPost("cancel-order/{orderId}")]
         public async Task<IActionResult> CancelOrder(string orderId, [FromBody] CancelOrderRequest request)
         {
@@ -149,7 +149,7 @@ namespace SaleStream.Controllers
         }
 
         // Get All Orders
-        [Authorize(Policy = "CSRPolicy, AdminPolicy")]
+        [Authorize(Roles = "Customer Service Representative, Admin")]
         [HttpGet("all-orders")]
         public async Task<IActionResult> GetAllOrders()
         {

@@ -24,31 +24,34 @@ namespace SaleStream.Services
 
     
         /// Generates a JWT token for the given user
-        public string GenerateToken(User user)
-        {
-            if (string.IsNullOrEmpty(user.Email))
-                throw new ArgumentNullException(nameof(user.Email), "User's email cannot be null or empty.");
+        public string GenerateToken(string id, string email, string role)
+{
+    if (string.IsNullOrEmpty(email))
+        throw new ArgumentNullException(nameof(email), "Email cannot be null or empty.");
 
-            var claims = new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim("Id", user.Id),
-                new Claim(ClaimTypes.Role, user.Role)
-            };
+    var claims = new[]
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, email),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.Email, email),
+        new Claim("Id", id),
+        new Claim(ClaimTypes.Role, role)
+    };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
+    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken(
-                issuer: _issuer,
-                audience: _audience,
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
-                signingCredentials: creds);
+    var token = new JwtSecurityToken(
+        issuer: _issuer,
+        audience: _audience,
+        claims: claims,
+        expires: DateTime.Now.AddMinutes(30),
+        signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
+
+
+        
     }
 }

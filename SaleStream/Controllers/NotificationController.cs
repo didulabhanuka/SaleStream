@@ -42,7 +42,7 @@ namespace SaleStream.Controllers
             return Ok("Cancellation request notification created.");
         }
 
-        [Authorize(Policy = "CSRPolicy, AdminPolicy")]
+        [Authorize(Roles = "Customer Service Representative, Admin")]
         [HttpGet("cancel-requests")]
         public async Task<IActionResult> GetAllCancelRequests()
         {
@@ -59,7 +59,7 @@ namespace SaleStream.Controllers
 
         // ------------------------- Product Notification Endpoints -------------------------
 
-        [Authorize(Policy = "CSRPolicy, AdminPolicy")]
+        [Authorize(Roles = "Customer Service Representative, Admin")]
         [HttpGet("product-notifications")]
         public async Task<IActionResult> GetAllProductNotifications()
         {
@@ -67,7 +67,7 @@ namespace SaleStream.Controllers
             return Ok(notifications);
         }
 
-        [Authorize(Policy = "CSRPolicy, AdminPolicy")]
+        [Authorize(Roles = "Customer Service Representative, Admin")]
         [HttpGet("product-notification/{id}")]
         public async Task<IActionResult> GetProductNotificationById(string id)
         {
@@ -79,7 +79,7 @@ namespace SaleStream.Controllers
             return Ok(notification);
         }
 
-        [Authorize(Policy = "VendorPolicy")]
+        [Authorize(Roles = "Vendor")]
         [HttpGet("vendor-product-notifications")]
         public async Task<IActionResult> GetProductNotificationsByVendorEmail()
         {
@@ -88,7 +88,7 @@ namespace SaleStream.Controllers
             return Ok(notifications);
         }
 
-        [Authorize(Policy = "VendorPolicy")]
+        [Authorize(Roles = "Vendor")]
         [HttpPut("remove-product-notification/{id}")]
         public async Task<IActionResult> MarkProductNotificationAsRemoved(string id, [FromBody] RemovedModel model)
         {
@@ -103,7 +103,7 @@ namespace SaleStream.Controllers
 
         // ------------------------- Short Notification Endpoints -------------------------
 
-        [Authorize(Policy = "CSRPolicy, AdminPolicy")]
+        [Authorize(Roles = "Customer Service Representative, Admin")]
         [HttpGet("short-notifications")]
         public async Task<IActionResult> GetAllShortNotifications()
         {
