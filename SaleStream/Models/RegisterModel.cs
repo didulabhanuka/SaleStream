@@ -17,3 +17,4 @@ namespace SaleStream.Models
         public string Role { get; set; } // User role (e.g., Admin, User)
     }
 }
+

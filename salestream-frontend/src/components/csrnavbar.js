@@ -1,16 +1,15 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'; // Added useNavigate for redirection
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../images/logo.png';
 import man from '../images/man.jpg';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { ToastContainer, toast } from 'react-toastify'; // Import Toastify for the confirmation
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify'; // Import Toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
 
 const Navbar = () => {
   const location = useLocation(); // Get the current path
   const navigate = useNavigate(); // Hook for navigation
 
-  // Logout confirmation with toast notification
   const handleLogout = () => {
     toast(
       ({ closeToast }) => (
@@ -21,8 +20,8 @@ const Navbar = () => {
               className="btn btn-danger me-2"
               onClick={() => {
                 // Confirm logout action
-                closeToast(); // Close the toast
-                navigate('/'); // Redirect to homepage after logging out
+                closeToast();
+                navigate('/'); // Redirect to login page after logging out
               }}
             >
               Yes
@@ -37,8 +36,8 @@ const Navbar = () => {
         </div>
       ),
       {
-        position: 'top-center', // Position the confirmation toast at the top center
-        autoClose: false, // Disable auto close, so the user has time to choose
+        position: 'top-center', // Use string instead of constant for position
+        autoClose: false, // Don't auto-close the toast, wait for user interaction
       }
     );
   };
@@ -56,52 +55,33 @@ const Navbar = () => {
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item mx-3">
               <Link 
-                to="/customer-edit" 
-                className={`nav-link fs-5 fw-bold ${location.pathname === '/customer-edit' ? 'text-primary' : ''}`}
-                style={{ color: location.pathname === '/customer-edit' ? '#1827A4' : '' }}
+                to="/csr-customer-edit" 
+                className={`nav-link fs-5 fw-bold ${location.pathname === '/csr-customer-edit' ? 'text-primary' : ''}`}
+                style={{ color: location.pathname === '/csr-customer-edit' ? '#1827A4' : '' }}
               >
-                Customer Activation
+                Account Activation
               </Link>
             </li>
             <li className="nav-item mx-3">
               <Link 
-                to="/Add-vendor" 
-                className={`nav-link fs-5 fw-bold ${location.pathname === '/Add-vendor' ? 'text-primary' : ''}`}
-                style={{ color: location.pathname === '/Add-vendor' ? '#1827A4' : '' }}
+                to="/csr-orders" 
+                className={`nav-link fs-5 fw-bold ${location.pathname === '/csr-orders' ? 'text-primary' : ''}`}
+                style={{ color: location.pathname === '/csr-orders' ? '#1827A4' : '' }}
               >
-                Add Vendor
+                Orders 
               </Link>
             </li>
             <li className="nav-item mx-3">
               <Link 
-                to="/vendor-list" 
-                className={`nav-link fs-5 fw-bold ${location.pathname === '/vendor-list' ? 'text-primary' : ''}`}
-                style={{ color: location.pathname === '/vendor-list' ? '#1827A4' : '' }}
+                to="/csr-products" 
+                className={`nav-link fs-5 fw-bold ${location.pathname === '/csr-products' ? 'text-primary' : ''}`}
+                style={{ color: location.pathname === '/csr-products' ? '#1827A4' : '' }}
               >
-                Vendor List
-              </Link>
-            </li>
-            <li className="nav-item mx-3">
-              <Link 
-                to="/orders" 
-                className={`nav-link fs-5 fw-bold ${location.pathname === '/orders' ? 'text-primary' : ''}`}
-                style={{ color: location.pathname === '/orders' ? '#1827A4' : '' }}
-              >
-                Orders
-              </Link>
-            </li>
-            <li className="nav-item mx-3">
-              <Link 
-                to="/admin-products" 
-                className={`nav-link fs-5 fw-bold ${location.pathname === '/admin-products' ? 'text-primary' : ''}`}
-                style={{ color: location.pathname === '/admin-products' ? '#1827A4' : '' }}
-              >
-                Products
+                Products 
               </Link>
             </li>
           </ul>
           <div className="d-flex align-items-center ms-auto">
-            {/* Logout confirmation on clicking the image */}
             <button className="btn btn-link p-0" onClick={handleLogout}>
               <img className="mx-3" src={man} alt='man' width={35} height={35} />
             </button>
@@ -111,6 +91,6 @@ const Navbar = () => {
       <ToastContainer /> {/* Add ToastContainer for showing notifications */}
     </nav>
   );
-};
+}
 
 export default Navbar;

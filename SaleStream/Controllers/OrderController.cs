@@ -117,6 +117,29 @@ namespace SaleStream.Controllers
             return Ok("Order updated successfully.");
         }
 
+        // Mark an order as delivered
+        [Authorize(Roles = "Customer Service Representative, Admin, Vendor")]
+        [HttpPut("mark-delivered/{orderId}")]
+        public async Task<IActionResult> MarkOrderAsDelivered(string orderId)
+        {
+            var existingOrder = await _orderService.GetOrderByIdAsync(orderId);
+            if (existingOrder == null)
+            {
+                return NotFound("Order not found.");
+            }
+
+            if (existingOrder.OrderStatus == 3 && existingOrder.Delivered) // If already delivered
+            {
+                return BadRequest("Order is already marked as delivered.");
+            }
+
+            existingOrder.OrderStatus = 3;  // Set status to Delivered
+            existingOrder.Delivered = true; // Set Delivered field to true
+
+            await _orderService.UpdateOrderAsync(existingOrder);
+            return Ok("Order marked as delivered successfully.");
+        }
+
         // Get all orders by a user
         [Authorize]
         [HttpGet("user-orders")]
@@ -149,7 +172,7 @@ namespace SaleStream.Controllers
         }
 
         // Get All Orders
-        [Authorize(Roles = "Customer Service Representative, Admin")]
+        [Authorize(Roles = "Customer Service Representative, Admin, Vendor")]
         [HttpGet("all-orders")]
         public async Task<IActionResult> GetAllOrders()
         {

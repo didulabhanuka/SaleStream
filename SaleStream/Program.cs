@@ -38,7 +38,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS configuration
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", builder =>
@@ -49,7 +48,6 @@ builder.Services.AddCors(options =>
                .AllowCredentials(); // Allow credentials if needed
     });
 });
-
 
 var app = builder.Build();
 

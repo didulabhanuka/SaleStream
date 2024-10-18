@@ -59,7 +59,7 @@ namespace SaleStream.Controllers
 
         // ------------------------- Product Notification Endpoints -------------------------
 
-        [Authorize(Roles = "Admin, CSR")]
+        [Authorize(Roles = "Customer Service Representative, Admin")]
         [HttpGet("product-notifications")]
         public async Task<IActionResult> GetAllProductNotifications()
         {
@@ -67,7 +67,7 @@ namespace SaleStream.Controllers
             return Ok(notifications);
         }
 
-        [Authorize(Roles = "Admin, CSR")]
+        [Authorize(Roles = "Customer Service Representative, Admin")]
         [HttpGet("product-notification/{id}")]
         public async Task<IActionResult> GetProductNotificationById(string id)
         {

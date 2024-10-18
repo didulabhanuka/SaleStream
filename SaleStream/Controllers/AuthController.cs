@@ -13,15 +13,38 @@ namespace SaleStream.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly VendorService _vendorService;
         private readonly JwtService _jwtService;
         private readonly IConfiguration _configuration;
 
-        public AuthController(UserService userService, JwtService jwtService, IConfiguration configuration)
+        public AuthController(UserService userService, VendorService vendorService, JwtService jwtService, IConfiguration configuration)
         {
             _userService = userService;
+            _vendorService = vendorService;
             _jwtService = jwtService;
             _configuration = configuration;
         }
+
+    /*    [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        {
+            if (!await _userService.IsEmailUniqueAsync(model.Email))
+            {
+                return BadRequest("Email already exists.");
+            }
+
+            var newUser = new User
+            {
+                Email = model.Email,
+                Password = model.Password,
+                Role = "User",  // Default role is User
+                Status = 1  // Active by default
+            };
+
+            await _userService.CreateUserAsync(newUser);
+            return Ok("User registered successfully.");
+        } */
 
         [AllowAnonymous]
         [HttpPost("register")]
@@ -55,9 +78,11 @@ namespace SaleStream.Controllers
                 return Unauthorized("Invalid credentials or inactive account.");
             }
 
-            var token = _jwtService.GenerateToken(user);
+            var token = _jwtService.GenerateToken(user.Id, user.Email, user.Role);
             return Ok(new { Token = token, Role = user.Role });
         }
+
+
 
         [Authorize]
         [HttpPost("deactivate")]
@@ -74,8 +99,6 @@ namespace SaleStream.Controllers
             await _userService.UpdateUserAsync(user);
             return Ok("Account deactivated.");
         }
-
-        
 
         [Authorize(Roles = "Admin, Customer Service Representative")]
         [HttpPost("activate")]
@@ -166,6 +189,33 @@ namespace SaleStream.Controllers
             }
             return Ok(user);
         }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetUserProfile()
+        {
+            // Get the authenticated user's email from the claims
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            // Fetch user details by email
+            var user = await _userService.GetUserByEmailAsync(email);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Return user profile information (excluding sensitive fields like password)
+            var userProfile = new
+            {
+                user.Id,
+                user.Email,
+                user.Role,
+                Status = user.Status == 1 ? "Active" : "Deactivated"
+            };
+
+            return Ok(userProfile);
+        }
+
 
         public class ChangePasswordModel
         {

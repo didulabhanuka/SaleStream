@@ -145,6 +145,27 @@ namespace SaleStream.Controllers
             await _vendorService.DeleteCommentAsync(vendorId, commentId, userId);
             return Ok("Comment deleted successfully.");
         }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        {
+            // Step 1: Get the vendor by email
+            var vendor = await _vendorService.GetVendorByEmailAsync(model.Email);
+
+            // Step 2: Check if the vendor exists, verify password, and ensure the vendor account is active
+            if (vendor == null || !UserService.VerifyPassword(model.Password, vendor.Password) || vendor.Status != 1)
+            {
+                return Unauthorized("Invalid credentials or inactive vendor account.");
+            }
+
+            // Step 3: Generate a JWT token for the vendor
+            var token = _jwtService.GenerateToken(vendor.Id, vendor.Email, "Vendor");
+
+            // Step 4: Return the token and vendor role
+            return Ok(new { Token = token, Role = "Vendor" });
+        }
+
     }
 
     public class CommentModel

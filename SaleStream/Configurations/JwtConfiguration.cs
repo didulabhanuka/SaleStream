@@ -39,10 +39,14 @@ namespace SaleStream.Configurations
                 options.AddPolicy("VendorPolicy", policy => policy.RequireRole("Vendor"));
                 options.AddPolicy("CSRPolicy", policy => policy.RequireRole("CSR"));
                 
+                // Single policy for Admin, Vendor, or CSR
+                options.AddPolicy("AdminVendorCSRPolicy", policy => policy.RequireRole("Admin", "Vendor", "CSR"));
+                options.AddPolicy("AdminVendorolicy", policy => policy.RequireRole("Admin", "Vendor"));
+                options.AddPolicy("AdminCSRPolicy", policy => policy.RequireRole("Admin", "CSR"));
+                
             });
         }
     }
-
 
     /// Holds Jwt Settings for authentication
     public class JwtSettings

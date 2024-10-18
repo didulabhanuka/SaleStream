@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const Login = () => {
+const VendorLogin = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false); // Loading state
@@ -13,45 +13,36 @@ const Login = () => {
     const Submit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
-        const loginUser = {
+    
+        const loginVendor = {
             Email: email,
             Password: password,
         };
-
+    
         try {
             const res = await axios.post(
-                "http://localhost:5282/api/Auth/login",
-                loginUser,
+                "http://localhost:5282/api/Vendor/login",
+                loginVendor,
                 {
                     headers: {
                         "Content-Type": "application/json",
                     },
                 }
             );
-
+    
             console.log("Login response:", res.data); // Log the entire response
-
+    
             const { token, role } = res.data; // Ensure the destructuring matches the response structure
             console.log("Token received:", token); // Log the token for debugging
             console.log("Role received:", role); // Log the role for debugging
-
+            
             Swal.fire("Success!", "Login successful", "success");
             localStorage.setItem("token", token); // Store the token in local storage
-
-            // Check if the role is Admin or Customer Service Representative
-            if (role === "Admin") {
-                navigate("/customer-edit");
-            } else if (role === "Customer Service Representative") {
-                navigate("/csr-customer-edit");
+    
+            if (role === "Vendor") {
+                navigate("/products"); // Redirect to vendor dashboard
             } else {
-                // Redirect to home if the role is not valid
-                Swal.fire({
-                    icon: "error",
-                    title: "Unauthorized",
-                    text: "You do not have permission to access this application.",
-                });
-                navigate("/");
+                navigate("/"); // Just in case
             }
         } catch (error) {
             console.error("Login error: ", error);
@@ -65,9 +56,10 @@ const Login = () => {
             setLoading(false);
         }
     };
-
+    
     return (
         <div>
+            <br></br>
             <br></br>
             <br></br>
             <br></br>
@@ -76,7 +68,7 @@ const Login = () => {
             <div className="container mt-5">
                 <div className="d-flex justify-content-center">
                     <div className="card shadow p-4" style={{ maxWidth: "500px", width: "100%" }}>
-                        <h3 className="text-center mb-4">Admin/CSR Login</h3>
+                        <h3 className="text-center mb-4">Vendor Login</h3>
                         <form onSubmit={Submit}>
                             {/* Email */}
                             <div className="mb-3">
@@ -107,13 +99,6 @@ const Login = () => {
                                 {loading ? "Logging in..." : "Login"}
                             </button>
                         </form>
-
-                        {/* Link to Register */}
-                        <div className="text-center mt-3">
-                            <Link to="/reg" className="btn btn-link">
-                                Don't have an account? Register
-                            </Link>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -121,4 +106,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default VendorLogin;
